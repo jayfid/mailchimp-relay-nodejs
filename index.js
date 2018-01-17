@@ -4,8 +4,6 @@ process.env['PATH'] = process.env['PATH'] + ':' + process.env['LAMBDA_TASK_ROOT'
 
 const Mailchimp = require('mailchimp-api-v3');
 
-console.log('starting function.');
-
 exports.handler = (event, context, callback) => {
     const done = (err, res) => {
         const body = {
@@ -44,37 +42,31 @@ exports.handler = (event, context, callback) => {
      * @param {string} listId the list to subscribe the email to.
      */
     const signUpEmail = (email, listId) => {
-        console.log('signing up');
         const mailchimp = new Mailchimp(process.env.MC_API_KEY);
-        console.log('created mailchimp object');
         return mailchimp.post(`/lists/${listId}/members`, {
             email_address : email,
             status : 'subscribed'
         });
     };
 
-
-    console.log('validating environment');
     const envErr = validateEnvironment();
     if (envErr) {
         console.log(envErr);
         return done('server');
     }
-    console.log('environment passes validation');
+
     const body = JSON.parse(event.body);
     if (!body.hasOwnProperty('email')) {
         return done('email');
     }
-    console.log('body has email');
+
     const listid = (body.hasOwnProperty('listid')) ? body.listid : process.env.MC_DEFAULT_LIST_ID;
 
     signUpEmail(body.email, listid)
     .then(() => {
-        console.log('success');
         return done(null, 'success');
     })
     .catch((err) => {
-        console.log('error...');
         switch (err.status) {
             case 404:
                 console.log(`List ID: ${listid} could not be found.`);
