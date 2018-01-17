@@ -71,7 +71,7 @@ exports.handler = (event, context, callback) => {
     signUpEmail(body.email, listid)
     .then(() => {
         console.log('success');
-        return done('success');
+        return done(null, 'success');
     })
     .catch((err) => {
         console.log('error...');
