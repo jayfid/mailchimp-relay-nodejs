@@ -9,7 +9,7 @@ console.log('starting function.');
 exports.handler = (event, context, callback) => {
     const done = (err, res) => {
         const body = {
-            data: err ? false : JSON.stringify(res),
+            data: err ? false : res,
             error: err ? err : false
         };
         return callback(null, {
