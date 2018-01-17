@@ -1,0 +1,15 @@
+{
+  "name": "mailchimp-relay-nodejs",
+  "version": "1.0.0",
+  "description": "Relay single subscriptions to mailchimp via their v3 api.",
+  "main": "index.js",
+  "dependencies": {
+    "mailchimp-api-v3": "^1.8.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "jayfid",
+  "license": "ISC"
+}
