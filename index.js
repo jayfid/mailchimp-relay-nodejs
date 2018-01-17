@@ -12,16 +12,15 @@ const Mailchimp = require('mailchimp-api-v3');
 function signUpEmail(email, listId) {
     const mailchimp = new Mailchimp(process.env.MC_API_KEY);
     return mailchimp.post(`/lists/${listId}/members`, {
-        email_address : body.email,
+        email_address : email,
         status : 'subscribed'
     });
 }
 
 /**
  * Validate that expected environment variables are set.
- * @param {string} httpMethod the uppercase HTTP method
  */
-function validateEnvironment(httpMethod) {
+function validateEnvironment() {
     if (!process.env.hasOwnProperty('MC_API_KEY')) {
         return 'MC_API_KEY not set.';
     }
@@ -45,27 +44,40 @@ exports.handler = (event, context, callback) => {
         }
     });
 
-    const envErr = validateEnvironment(event.httpMethod);
-
+    const envErr = validateEnvironment();
     if (envErr) {
         console.log(envErr);
         done('server');
     }
 
-    const body = JSON.parse(event.body)
-
-    const list_id = (body.hasOwnProperty('listid')) ? body.listid : process.env.MC_DEFAULT_LIST_ID;
-
+    const body = JSON.parse(event.body);
     if (!body.hasOwnProperty('email')) {
         done('email');
     }
 
-    signUpEmail(email, list_id)
-    .then((results) => {
-        // do something
+    const listid = (body.hasOwnProperty('listid')) ? body.listid : process.env.MC_DEFAULT_LIST_ID;
+
+    signUpEmail(body.email, listid)
+    .then(() => {
         done('success');
     })
     .catch((err) => {
-        done(err.message);
+        switch (err.status) {
+            case 404:
+                console.log(`List ID: ${listid} could not be found.`);
+                done('server');
+                break;
+            case 400:
+                if (err.title === 'Member Exists') {
+                    done('exists');
+                } else {
+                    console.log(err.detail);
+                    done('server');
+                }
+                break;
+            default:
+                console.log(err.detail);
+                done('server');
+        }
     });
 };

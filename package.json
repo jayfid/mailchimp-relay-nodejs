@@ -6,7 +6,9 @@
   "dependencies": {
     "mailchimp-api-v3": "^1.8.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "eslint": "^4.15.0"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
